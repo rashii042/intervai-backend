@@ -1,0 +1,36 @@
+{
+  "name": "ai-interview-platform",
+  "version": "1.0.0",
+  "description": "Complete AI Interview Practice Platform with Voice Interaction and Webcam Analysis",
+  "main": "index.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "nodemon backend/server.js",
+    "client": "cd frontend && npx serve .",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-server": "cd backend && npm install",
+    "install-client": "cd frontend && npm install",
+    "install-all": "npm run install-server && npm run install-client",
+    "build": "cd frontend && npm run build",
+    "prod": "NODE_ENV=production node backend/server.js"
+  },
+  "keywords": [
+    "ai",
+    "interview",
+    "practice",
+    "voice-recognition",
+    "webcam-analysis",
+    "nodejs",
+    "mongodb"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}

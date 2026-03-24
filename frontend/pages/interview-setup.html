@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Interview - AI Interview Platform</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="setup-container">
+        <div class="setup-card glass-effect">
+            <h1>Select Your Exam</h1>
+            <p>Choose the exam you want to practice for</p>
+
+            <div class="exam-grid">
+                <div class="exam-card" data-exam="javascript">
+                    <i class="fab fa-js"></i>
+                    <h3>JavaScript</h3>
+                    <p>Frontend & Backend Questions</p>
+                </div>
+                <div class="exam-card" data-exam="python">
+                    <i class="fab fa-python"></i>
+                    <h3>Python</h3>
+                    <p>Programming & Automation</p>
+                </div>
+                <div class="exam-card" data-exam="java">
+                    <i class="fab fa-java"></i>
+                    <h3>Java</h3>
+                    <p>OOP & Enterprise</p>
+                </div>
+                <div class="exam-card" data-exam="dsa">
+                    <i class="fas fa-code-branch"></i>
+                    <h3>DSA</h3>
+                    <p>Data Structures & Algorithms</p>
+                </div>
+                <div class="exam-card" data-exam="webdev">
+                    <i class="fas fa-globe"></i>
+                    <h3>Web Development</h3>
+                    <p>HTML, CSS, React, Node.js</p>
+                </div>
+                <div class="exam-card" data-exam="dbms">
+                    <i class="fas fa-database"></i>
+                    <h3>DBMS</h3>
+                    <p>SQL, MongoDB, Design</p>
+                </div>
+                <div class="exam-card" data-exam="os">
+                    <i class="fas fa-laptop"></i>
+                    <h3>Operating System</h3>
+                    <p>Process, Memory, Scheduling</p>
+                </div>
+                <div class="exam-card" data-exam="aptitude">
+                    <i class="fas fa-calculator"></i>
+                    <h3>Aptitude</h3>
+                    <p>Quantitative & Logical</p>
+                </div>
+            </div>
+
+            <div class="setup-actions">
+                <button class="btn-primary" id="start-interview-btn" disabled>
+                    <i class="fas fa-play"></i> Start Interview
+                </button>
+                <button class="btn-outline" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedExam = null;
+        
+        document.querySelectorAll('.exam-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.exam-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedExam = card.dataset.exam;
+                document.getElementById('start-interview-btn').disabled = false;
+            });
+        });
+
+        document.getElementById('start-interview-btn').addEventListener('click', () => {
+            if (selectedExam) {
+                window.location.href = `interview-room.html?exam=${selectedExam}`;
+            }
+        });
+    </script>
+
+    <style>
+        .setup-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .setup-card {
+            max-width: 1000px;
+            width: 100%;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+        }
+        
+        .exam-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .exam-card {
+            padding: 2rem;
+            background: white;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .exam-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .exam-card.selected {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .exam-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #6366f1;
+        }
+        
+        .exam-card h3 {
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        
+        .exam-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .setup-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "ai-interview-platform-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for AI Interview Practice Platform",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -p 3000",
+    "dev": "npx serve . -p 3000"
+  },
+  "dependencies": {
+    "chart.js": "4.4.0",
+    "axios": "1.5.0"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}

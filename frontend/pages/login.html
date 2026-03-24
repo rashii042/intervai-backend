@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Interview Platform</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .toast { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; background: white; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); z-index: 9999; display: flex; align-items: center; gap: 12px; min-width: 300px; animation: slideIn 0.3s ease; border-left: 4px solid; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        #google-signin-button { display: flex; justify-content: center; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="auth-container">
+        <div class="floating-elements">
+            <div class="floating-element element-1"></div>
+            <div class="floating-element element-2"></div>
+            <div class="floating-element element-3"></div>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Interview</span>
+                </a>
+                <h1>Welcome Back</h1>
+                <p>Sign in to continue your interview practice</p>
+            </div>
+
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="remember">
+                        <span class="checkmark"></span>
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-password" id="forgot-password">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block">
+                    Sign In <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="divider-container">
+                <span class="divider-line"></span>
+                <span class="divider-text">OR</span>
+                <span class="divider-line"></span>
+            </div>
+
+            <div id="google-signin-button"></div>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message, type) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            let color = '#3b82f6';
+            let icon = 'info-circle';
+            if (type === 'success') { color = '#10b981'; icon = 'check-circle'; }
+            else if (type === 'error') { color = '#ef4444'; icon = 'exclamation-circle'; }
+            toast.style.borderLeftColor = color;
+            toast.innerHTML = `<i class="fas fa-${icon}" style="color: ${color}"></i><span>${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function handleGoogleCredentialResponse(response) {
+            const payload = parseJwt(response.credential);
+            let userName = payload.name;
+            if (!userName || userName === '') {
+                userName = payload.email.split('@')[0];
+                userName = userName.charAt(0).toUpperCase() + userName.slice(1);
+            }
+            
+            const user = {
+                id: payload.sub,
+                name: userName,
+                email: payload.email,
+                picture: payload.picture,
+                provider: 'google',
+                joined: new Date().toLocaleDateString(),
+                stats: {
+                    totalInterviews: 0,
+                    averageScore: 0,
+                    confidenceScore: 0,
+                    technicalScore: 0,
+                    communicationScore: 0
+                }
+            };
+            
+            // Initialize user interviews
+            const allInterviews = JSON.parse(localStorage.getItem('allUserInterviews') || '{}');
+            if (!allInterviews[payload.email]) {
+                allInterviews[payload.email] = [];
+                localStorage.setItem('allUserInterviews', JSON.stringify(allInterviews));
+            }
+            
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('token', response.credential);
+            
+            showToast(`Welcome ${userName}!`, 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        }
+
+        // Initialize Google Sign-In
+        window.onload = function() {
+            const GOOGLE_CLIENT_ID = '260086052154-v68hb0g9go0t3528jod5t3a98115oh5f.apps.googleusercontent.com';
+            if (typeof google !== 'undefined') {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCredentialResponse,
+                    auto_select: false,
+                    cancel_on_tap_outside: true
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById('google-signin-button'),
+                    { 
+                        theme: 'outline', 
+                        size: 'large', 
+                        width: '100%',
+                        text: 'continue_with',
+                        shape: 'rectangular',
+                        logo_alignment: 'center'
+                    }
+                );
+            }
+        };
+
+        // ✅ LOGIN - Check registered users from localStorage
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            
+            if (!email || !password) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            // Get registered users
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            const user = users[email];
+            
+            console.log('Attempting login for:', email);
+            console.log('Registered users:', Object.keys(users));
+            
+            if (user && user.password === password) {
+                // Login success
+                const currentUser = {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone || '+91 98765 43210',
+                    location: user.location || 'Mumbai, India',
+                    joined: user.joined,
+                    stats: user.stats || {
+                        totalInterviews: 0,
+                        averageScore: 0,
+                        confidenceScore: 0,
+                        technicalScore: 0,
+                        communicationScore: 0
+                    }
+                };
+                
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                localStorage.setItem('token', 'demo_token_' + Date.now());
+                if (remember) localStorage.setItem('rememberedEmail', email);
+                
+                showToast('Login successful!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            } else {
+                if (!user) {
+                    showToast('Email not registered. Please sign up first.', 'error');
+                } else {
+                    showToast('Invalid password', 'error');
+                }
+            }
+        });
+
+        // Forgot Password
+        document.getElementById('forgot-password').addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            if (email) {
+                showToast('Password reset link sent to ' + email, 'success');
+            } else {
+                showToast('Please enter your email address', 'warning');
+            }
+        });
+
+        // Load remembered email
+        const rememberedEmail = localStorage.getItem('rememberedEmail');
+        if (rememberedEmail) {
+            document.getElementById('email').value = rememberedEmail;
+            document.getElementById('remember').checked = true;
+        }
+        
+        // For testing - create a demo user if none exists
+        const users = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+        if (Object.keys(users).length === 0) {
+            users['demo@example.com'] = {
+                id: Date.now(),
+                name: 'Demo User',
+                email: 'demo@example.com',
+                password: 'demo123',
+                phone: '+91 98765 43210',
+                location: 'Mumbai, India',
+                joined: new Date().toLocaleDateString(),
+                stats: {
+                    totalInterviews: 0,
+                    averageScore: 0,
+                    confidenceScore: 0,
+                    technicalScore: 0,
+                    communicationScore: 0
+                }
+            };
+            localStorage.setItem('registeredUsers', JSON.stringify(users));
+            console.log('Demo user created: demo@example.com / demo123');
+        }
+    </script>
+</body>
+</html>
