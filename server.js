@@ -1,3 +1,7 @@
+const authRoutes = require('./routes/authRoutes');
+const interviewRoutes = require('./routes/interviewRoutes');
+const userRoutes = require('./routes/userRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 const express = require('express');
 const cors = require('cors');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -6,7 +10,11 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/interviews', interviewRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/reports', reportRoutes);
 // Initialize Gemini with working model from test
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const MODEL_NAME = "gemini-2.5-flash-lite"; // ✅ Working model from test
