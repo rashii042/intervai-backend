@@ -1,4 +1,4 @@
-require('dotenv').config(); // ✅ Pehle environment variables load karo
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
@@ -10,16 +10,12 @@ const authRoutes = require('./routes/authRoutes');
 const interviewRoutes = require('./routes/interviewRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reportRoutes = require('./routes/reportRoutes');
-const express = require('express');
-const cors = require('cors');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ MongoDB connection (check if URI exists)
+// MongoDB connection
 if (!process.env.MONGODB_URI) {
     console.error('❌ MONGODB_URI is not defined in environment variables');
     process.exit(1);
@@ -47,7 +43,6 @@ app.post('/api/ai/generate-questions', async (req, res) => {
         console.log('📡 Gemini API - Generating questions...');
         console.log('Subject:', subject, 'Difficulty:', difficulty, 'Count:', count, 'Exam:', examType);
         
-        // Create prompt for Gemini
         let prompt = '';
         
         if (examType && examType !== 'general' && examType !== 'null') {
@@ -61,21 +56,14 @@ app.post('/api/ai/generate-questions', async (req, res) => {
             Example format: ["Question 1", "Question 2", "Question 3"]`;
         }
         
-        console.log('📝 Prompt:', prompt);
-        
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
         
-        console.log('🤖 Gemini Response:', text);
-        
-        // Parse JSON from response
         let questions = [];
         try {
-            // Clean the text - remove markdown code blocks
             let cleanText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-            // Find JSON array in the text
             const jsonMatch = cleanText.match(/\[[\s\S]*\]/);
             if (jsonMatch) {
                 questions = JSON.parse(jsonMatch[0]);
@@ -83,8 +71,6 @@ app.post('/api/ai/generate-questions', async (req, res) => {
                 questions = JSON.parse(cleanText);
             }
         } catch (e) {
-            console.log('Direct JSON parse failed, extracting from text...');
-            // Extract questions from text (numbered list)
             const lines = text.split('\n');
             questions = lines
                 .filter(line => line.match(/^\d+\./) || line.match(/^["']/))
@@ -92,9 +78,7 @@ app.post('/api/ai/generate-questions', async (req, res) => {
                 .filter(q => q.length > 0 && !q.includes('```') && q !== '[' && q !== ']');
         }
         
-        // Ensure we have questions
         if (!questions || questions.length === 0) {
-            console.log('No questions extracted, using fallback');
             questions = getFallbackQuestions(subject, examType);
         }
         
@@ -110,8 +94,6 @@ app.post('/api/ai/generate-questions', async (req, res) => {
         
     } catch (error) {
         console.error('❌ Gemini API Error:', error.message);
-        
-        // Fallback to local questions
         const fallbackQuestions = getFallbackQuestions(req.body.subject, req.body.examType);
         res.json({
             success: true,
@@ -124,7 +106,6 @@ app.post('/api/ai/generate-questions', async (req, res) => {
 
 // Fallback Questions
 function getFallbackQuestions(subject, examType) {
-    // Company-specific
     const companyQuestions = {
         'Google': [
             "Design an algorithm to find the shortest path in a graph.",
@@ -172,7 +153,6 @@ function getFallbackQuestions(subject, examType) {
         return companyQuestions[examType];
     }
     
-    // Subject-based
     const subjectQuestions = {
         'technical': [
             "What is the difference between let, const, and var in JavaScript?",
