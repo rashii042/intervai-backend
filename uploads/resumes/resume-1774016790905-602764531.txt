@@ -1,0 +1,11 @@
+RASHI SHARMA
+Email: rashi.sharma@email.com
+Phone: 9876543210
+
+SKILLS: JavaScript, React, Node.js, MongoDB
+
+EXPERIENCE: Software Developer at Tech Solutions (2021-2024)
+
+PROJECTS: E-Commerce Platform
+
+EDUCATION: B.Tech Computer Science, DTU, 2021
