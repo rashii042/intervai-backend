@@ -146,7 +146,6 @@
             }, 1000);
         }
 
-        // Initialize Google Sign-In
         window.onload = function() {
             const GOOGLE_CLIENT_ID = '260086052154-v68hb0g9go0t3528jod5t3a98115oh5f.apps.googleusercontent.com';
             if (typeof google !== 'undefined') {
@@ -182,7 +181,6 @@
                 return;
             }
             
-            // Disable button and show loading
             const submitBtn = document.querySelector('#loginForm button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
@@ -201,7 +199,6 @@
                 console.log('Login response:', data);
                 
                 if (response.ok && data.success) {
-                    // Save token and user data
                     localStorage.setItem('token', data.token);
                     if (data.user) {
                         localStorage.setItem('currentUser', JSON.stringify(data.user));
@@ -225,40 +222,15 @@
             }
         });
 
-        // Forgot Password
         document.getElementById('forgot-password').addEventListener('click', (e) => {
             e.preventDefault();
             showToast('Please contact support to reset password', 'info');
         });
 
-        // Load remembered email
         const rememberedEmail = localStorage.getItem('rememberedEmail');
         if (rememberedEmail) {
             document.getElementById('email').value = rememberedEmail;
             document.getElementById('remember').checked = true;
-        }
-        
-        // For testing - create a demo user if none exists
-        const users = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-        if (Object.keys(users).length === 0) {
-            users['demo@example.com'] = {
-                id: Date.now(),
-                name: 'Demo User',
-                email: 'demo@example.com',
-                password: 'demo123',
-                phone: '+91 98765 43210',
-                location: 'Mumbai, India',
-                joined: new Date().toLocaleDateString(),
-                stats: {
-                    totalInterviews: 0,
-                    averageScore: 0,
-                    confidenceScore: 0,
-                    technicalScore: 0,
-                    communicationScore: 0
-                }
-            };
-            localStorage.setItem('registeredUsers', JSON.stringify(users));
-            console.log('Demo user created: demo@example.com / demo123');
         }
     </script>
 </body>
