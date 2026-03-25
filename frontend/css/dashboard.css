@@ -3057,4 +3057,53 @@ input:checked + .slider:before {
     .sidebar-overlay.active {
         display: block;
     }
+    /* Mobile Menu Button - Hidden on desktop, visible on mobile */
+.mobile-menu-btn {
+    display: none !important;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block !important;
+    }
+    
+    .sidebar {
+        position: fixed !important;
+        left: -280px !important;
+        top: 0 !important;
+        height: 100vh !important;
+        width: 280px !important;
+        z-index: 1000 !important;
+        transition: left 0.3s ease !important;
+        background: white !important;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
+    }
+    
+    .sidebar.open {
+        left: 0 !important;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+        padding: 70px 15px 20px 15px !important;
+        width: 100% !important;
+    }
+}
 }

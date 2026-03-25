@@ -6,6 +6,7 @@ class Dashboard {
     this.profilePhoto = localStorage.getItem('profilePhoto') || null;  // ← YEH LINE ADD
     this.performanceChart = null;  // ← ADD THIS
     this.skillsChart = null;
+        this.setupMobileMenu();  // ← ADD THIS
     this.init();
     }
 async init() {
@@ -1690,6 +1691,50 @@ setupMobileMenu() {
             sidebar.classList.remove('open');
             overlay.classList.remove('active');
         });
+    });
+    
+}
+setupMobileMenu() {
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (!menuBtn || !sidebar) return;
+    
+    // Create overlay if not exists
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+    }
+    
+    // Open menu
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+    });
+    
+    // Close menu when clicking overlay
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+    });
+    
+    // Close menu when clicking a nav link
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        });
+    });
+    
+    // Close on window resize (if becomes desktop)
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
     });
 }
 }
