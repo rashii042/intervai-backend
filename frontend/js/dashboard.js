@@ -7,15 +7,15 @@ class Dashboard {
     this.init();
     }
 
-   async init() {
+  async init() {
     await this.loadUserData();
     await this.loadInterviewData();
     this.setupEventListeners();
     this.loadCharts();
     this.loadRecentInterviews();
     this.initSettings();
-    this.setupProfileModal();
-    this.setupPhotoUpload();  // ← YEH LINE ADD
+    this.setupProfileEdit();   // ← ADD THIS LINE
+    this.setupPhotoUpload();   // ← ADD THIS LINE
     
     const hash = window.location.hash.substring(1);
     if (hash) {
@@ -1328,7 +1328,154 @@ updateRecentInterviewsTable() {
         </tr>
     `).join('');
 }
+// ========== PROFILE EDIT FUNCTIONS ==========
 
+setupProfileEdit() {
+    const editBtn = document.getElementById('edit-profile-btn');
+    const saveBtn = document.getElementById('save-profile-btn');
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    const editForm = document.getElementById('profile-edit-form');
+    const profileView = document.getElementById('profile-view');
+    
+    if (!editBtn) {
+        console.log('Edit button not found');
+        return;
+    }
+    
+    editBtn.addEventListener('click', () => {
+        // Populate edit form with current user data
+        const editName = document.getElementById('edit-name');
+        const editEmail = document.getElementById('edit-email');
+        const editPhone = document.getElementById('edit-phone');
+        const editSkills = document.getElementById('edit-skills');
+        const editExperience = document.getElementById('edit-experience');
+        const editEducation = document.getElementById('edit-education');
+        
+        if (this.currentUser) {
+            if (editName) editName.value = this.currentUser.name || '';
+            if (editEmail) editEmail.value = this.currentUser.email || '';
+            if (editPhone) editPhone.value = this.currentUser.phone || '';
+            if (editSkills) editSkills.value = this.currentUser.skills || '';
+            if (editExperience) editExperience.value = this.currentUser.experience || '';
+            if (editEducation) editEducation.value = this.currentUser.education || '';
+        }
+        
+        if (profileView) profileView.style.display = 'none';
+        if (editForm) editForm.style.display = 'block';
+        editBtn.style.display = 'none';
+    });
+    
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+            const updatedData = {
+                name: document.getElementById('edit-name')?.value || '',
+                email: document.getElementById('edit-email')?.value || '',
+                phone: document.getElementById('edit-phone')?.value || '',
+                skills: document.getElementById('edit-skills')?.value || '',
+                experience: document.getElementById('edit-experience')?.value || '',
+                education: document.getElementById('edit-education')?.value || ''
+            };
+            
+            if (!updatedData.name || !updatedData.email) {
+                this.showProfileMessage('Name and email are required', 'error');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const response = await fetch('https://intervai-backend.onrender.com/api/users/profile', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updatedData)
+                    });
+                    const data = await response.json();
+                    if (data.success && this.currentUser) {
+                        Object.assign(this.currentUser, data.user);
+                        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                    }
+                } else if (this.currentUser) {
+                    Object.assign(this.currentUser, updatedData);
+                    localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                }
+                
+                this.updateProfilePageData();
+                this.updateSidebarUserInfo();
+                this.updateAvatar();
+                
+                if (profileView) profileView.style.display = 'block';
+                if (editForm) editForm.style.display = 'none';
+                if (editBtn) editBtn.style.display = 'inline-flex';
+                
+                this.showProfileMessage('Profile updated!', 'success');
+                
+            } catch (error) {
+                this.showProfileMessage('Update failed', 'error');
+            }
+        });
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            if (profileView) profileView.style.display = 'block';
+            if (editForm) editForm.style.display = 'none';
+            if (editBtn) editBtn.style.display = 'inline-flex';
+        });
+    }
+}
+
+showProfileMessage(msg, type) {
+    const msgBox = document.getElementById('profile-message');
+    if (msgBox) {
+        msgBox.textContent = msg;
+        msgBox.className = type === 'success' ? 'success' : 'error';
+        msgBox.style.display = 'block';
+        setTimeout(() => {
+            msgBox.style.display = 'none';
+        }, 3000);
+    }
+}
+
+updateSidebarUserInfo() {
+    const sidebarName = document.getElementById('sidebar-user-name');
+    const sidebarEmail = document.getElementById('sidebar-user-email');
+    const greetingName = document.getElementById('greeting-name');
+    
+    if (sidebarName && this.currentUser) sidebarName.textContent = this.currentUser.name;
+    if (sidebarEmail && this.currentUser) sidebarEmail.textContent = this.currentUser.email;
+    if (greetingName && this.currentUser) greetingName.textContent = this.currentUser.name?.split(' ')[0];
+}
+
+updateAvatar() {
+    const photo = localStorage.getItem('profilePhoto');
+    const avatar = document.querySelector('.user-avatar');
+    const profileAvatar = document.querySelector('.profile-avatar-large');
+    
+    [avatar, profileAvatar].forEach(el => {
+        if (!el) return;
+        el.innerHTML = '';
+        if (photo) {
+            const img = document.createElement('img');
+            img.src = photo;
+            img.style = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+            el.appendChild(img);
+            el.style.background = 'none';
+        } else {
+            const initial = this.currentUser?.name?.charAt(0).toUpperCase() || 'U';
+            el.style.background = 'linear-gradient(135deg, #14b8a6, #8b5cf6)';
+            el.style.display = 'flex';
+            el.style.alignItems = 'center';
+            el.style.justifyContent = 'center';
+            el.textContent = initial;
+            el.style.fontSize = el === profileAvatar ? '3rem' : '1.8rem';
+            el.style.fontWeight = '600';
+            el.style.color = 'white';
+        }
+    });
+}
 }
 
 
