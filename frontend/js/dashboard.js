@@ -100,31 +100,43 @@ async init() {
     this.setupProfileEdit();   // ← ADD THIS
     this.setupPhotoUpload();   // ← ADD THIS
     }
-  updateProfilePageData() {
-    if (!this.currentUser) return;
+updateProfilePageData() {
+    // Reload from localStorage
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        this.currentUser = JSON.parse(savedUser);
+    }
     
+    if (!this.currentUser) {
+        console.log('❌ No user data');
+        return;
+    }
+    
+    console.log('📝 Updating profile:', this.currentUser);
+    
+    // Get all elements
     const profileName = document.getElementById('profile-name');
     const profileEmail = document.getElementById('profile-email');
-    const profilePhone = document.getElementById('profile-phone');  // ← YEH LINE HONI CHAHIYE
+    const profilePhone = document.getElementById('profile-phone');
     const profileSkills = document.getElementById('profile-skills');
     const profileExperience = document.getElementById('profile-experience');
     const profileEducation = document.getElementById('profile-education');
     const profileJoined = document.getElementById('profile-joined');
     
+    // Update text content
     if (profileName) profileName.textContent = this.currentUser.name || 'Not set';
     if (profileEmail) profileEmail.textContent = this.currentUser.email || 'Not set';
-    if (profilePhone) profilePhone.textContent = this.currentUser.phone || 'Not provided';  // ← YEH LINE
+    if (profilePhone) profilePhone.textContent = this.currentUser.phone || 'Not provided';
     if (profileSkills) profileSkills.textContent = this.currentUser.skills || 'Not provided';
     if (profileExperience) profileExperience.textContent = this.currentUser.experience ? `${this.currentUser.experience} years` : 'Not provided';
     if (profileEducation) profileEducation.textContent = this.currentUser.education || 'Not provided';
     if (profileJoined) profileJoined.textContent = this.currentUser.joined || new Date().toLocaleDateString();
     
-    // ... rest of code
-
     // Update stats bars
-    const avgScore = this.currentUser.stats?.averageScore || 0;
-    const confidence = this.currentUser.stats?.confidenceScore || 0;
-    const technical = this.currentUser.stats?.technicalScore || 0;
+    const stats = this.currentUser.stats || {};
+    const avgScore = stats.averageScore || 0;
+    const confidence = stats.confidenceScore || 0;
+    const technical = stats.technicalScore || 0;
     
     const avgBar = document.getElementById('profile-avg-bar');
     const confBar = document.getElementById('profile-confidence-bar');
@@ -141,6 +153,7 @@ async init() {
     if (techVal) techVal.textContent = technical + '%';
     
     this.updateAvatar();
+    console.log('✅ Profile page updated - Phone:', this.currentUser.phone);
 }
 
     async loadInterviewData() {
