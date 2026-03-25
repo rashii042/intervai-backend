@@ -83,6 +83,8 @@
     </div>
 
     <script>
+        const API_BASE = 'https://intervai-backend.onrender.com/api';
+
         function showToast(message, type) {
             const existing = document.querySelector('.toast');
             if (existing) existing.remove();
@@ -111,7 +113,7 @@
             }
         }
 
-        function handleGoogleCredentialResponse(response) {
+        async function handleGoogleCredentialResponse(response) {
             const payload = parseJwt(response.credential);
             let userName = payload.name;
             if (!userName || userName === '') {
@@ -134,13 +136,6 @@
                     communicationScore: 0
                 }
             };
-            
-            // Initialize user interviews
-            const allInterviews = JSON.parse(localStorage.getItem('allUserInterviews') || '{}');
-            if (!allInterviews[payload.email]) {
-                allInterviews[payload.email] = [];
-                localStorage.setItem('allUserInterviews', JSON.stringify(allInterviews));
-            }
             
             localStorage.setItem('currentUser', JSON.stringify(user));
             localStorage.setItem('token', response.credential);
@@ -175,8 +170,8 @@
             }
         };
 
-        // ✅ LOGIN - Check registered users from localStorage
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        // ✅ LOGIN - Backend API Call
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -187,57 +182,53 @@
                 return;
             }
             
-            // Get registered users
-            const users = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-            const user = users[email];
+            // Disable button and show loading
+            const submitBtn = document.querySelector('#loginForm button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            submitBtn.disabled = true;
             
-            console.log('Attempting login for:', email);
-            console.log('Registered users:', Object.keys(users));
-            
-            if (user && user.password === password) {
-                // Login success
-                const currentUser = {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    phone: user.phone || '+91 98765 43210',
-                    location: user.location || 'Mumbai, India',
-                    joined: user.joined,
-                    stats: user.stats || {
-                        totalInterviews: 0,
-                        averageScore: 0,
-                        confidenceScore: 0,
-                        technicalScore: 0,
-                        communicationScore: 0
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                console.log('Login response:', data);
+                
+                if (response.ok && data.success) {
+                    // Save token and user data
+                    localStorage.setItem('token', data.token);
+                    if (data.user) {
+                        localStorage.setItem('currentUser', JSON.stringify(data.user));
                     }
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                localStorage.setItem('token', 'demo_token_' + Date.now());
-                if (remember) localStorage.setItem('rememberedEmail', email);
-                
-                showToast('Login successful!', 'success');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
-            } else {
-                if (!user) {
-                    showToast('Email not registered. Please sign up first.', 'error');
+                    if (remember) localStorage.setItem('rememberedEmail', email);
+                    
+                    showToast('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
                 } else {
-                    showToast('Invalid password', 'error');
+                    showToast(data.message || 'Invalid email or password', 'error');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
                 }
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('Server error. Please try again later.', 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         });
 
         // Forgot Password
         document.getElementById('forgot-password').addEventListener('click', (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            if (email) {
-                showToast('Password reset link sent to ' + email, 'success');
-            } else {
-                showToast('Please enter your email address', 'warning');
-            }
+            showToast('Please contact support to reset password', 'info');
         });
 
         // Load remembered email
