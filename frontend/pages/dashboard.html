@@ -591,7 +591,7 @@
                 <div class="reports-list" id="reports-list"></div>
             </div>
 
-            <!-- Profile Page -->
+          <!-- Profile Page -->
 <div id="profile-page" class="page">
     <div class="page-header">
         <h1>My Profile</h1>
@@ -621,34 +621,34 @@
 
             <!-- Profile Display View -->
             <div id="profile-view">
-                <div class="profile-info-details" style="margin-top: 1rem; padding: 1rem;">
-                    <div class="profile-field" style="margin-bottom: 1rem; padding: 0.8rem; border-bottom: 1px solid #e5e7eb;">
-                        <label style="font-weight: 600; color: #14b8a6;">Full Name</label>
-                        <p id="profile-name" style="margin: 0.3rem 0 0; font-size: 1.1rem;">Loading...</p>
+                <div class="profile-info-details">
+                    <div class="profile-field">
+                        <label>Full Name</label>
+                        <p id="profile-name">Loading...</p>
                     </div>
-                    <div class="profile-field" style="margin-bottom: 1rem; padding: 0.8rem; border-bottom: 1px solid #e5e7eb;">
-                        <label style="font-weight: 600; color: #14b8a6;">Email Address</label>
-                        <p id="profile-email" style="margin: 0.3rem 0 0; font-size: 1.1rem;">loading@email.com</p>
+                    <div class="profile-field">
+                        <label>Email Address</label>
+                        <p id="profile-email">loading@email.com</p>
                     </div>
-                    <div class="profile-field" style="margin-bottom: 1rem; padding: 0.8rem; border-bottom: 1px solid #e5e7eb;">
-                        <label style="font-weight: 600; color: #14b8a6;">Phone Number</label>
-                        <p id="profile-phone" style="margin: 0.3rem 0 0; font-size: 1.1rem;">Not provided</p>
+                    <div class="profile-field">
+                        <label>Phone</label>
+                        <p id="profile-phone">Not provided</p>
                     </div>
-                    <div class="profile-field" style="margin-bottom: 1rem; padding: 0.8rem; border-bottom: 1px solid #e5e7eb;">
-                        <label style="font-weight: 600; color: #14b8a6;">Skills</label>
-                        <p id="profile-skills" style="margin: 0.3rem 0 0; font-size: 1.1rem;">Not provided</p>
+                    <div class="profile-field">
+                        <label>Skills</label>
+                        <p id="profile-skills">Not provided</p>
                     </div>
-                    <div class="profile-field" style="margin-bottom: 1rem; padding: 0.8rem; border-bottom: 1px solid #e5e7eb;">
-                        <label style="font-weight: 600; color: #14b8a6;">Experience (Years)</label>
-                        <p id="profile-experience" style="margin: 0.3rem 0 0; font-size: 1.1rem;">Not provided</p>
+                    <div class="profile-field">
+                        <label>Experience</label>
+                        <p id="profile-experience">Not provided</p>
                     </div>
-                    <div class="profile-field" style="margin-bottom: 1rem; padding: 0.8rem; border-bottom: 1px solid #e5e7eb;">
-                        <label style="font-weight: 600; color: #14b8a6;">Education</label>
-                        <p id="profile-education" style="margin: 0.3rem 0 0; font-size: 1.1rem;">Not provided</p>
+                    <div class="profile-field">
+                        <label>Education</label>
+                        <p id="profile-education">Not provided</p>
                     </div>
-                    <div class="profile-field" style="margin-bottom: 1rem; padding: 0.8rem;">
-                        <label style="font-weight: 600; color: #14b8a6;">Member Since</label>
-                        <p id="profile-joined" style="margin: 0.3rem 0 0; font-size: 1.1rem;">Loading...</p>
+                    <div class="profile-field">
+                        <label>Member Since</label>
+                        <p id="profile-joined">Loading...</p>
                     </div>
                 </div>
             </div>
@@ -657,37 +657,33 @@
             <div id="profile-edit-form" style="display: none;">
                 <h3 style="margin-bottom: 1.5rem;">✏️ Edit Profile</h3>
                 <form id="edit-profile-form">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="font-weight: 600;">Full Name *</label>
-                        <input type="text" id="edit-name" class="form-control" style="width: 100%; padding: 0.8rem; border: 2px solid #e5e7eb; border-radius: 12px;">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="edit-name" class="form-control" required>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="font-weight: 600;">Email *</label>
-                        <input type="email" id="edit-email" class="form-control" style="width: 100%; padding: 0.8rem; border: 2px solid #e5e7eb; border-radius: 12px;">
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="edit-email" class="form-control" required>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="font-weight: 600;">Phone</label>
-                        <input type="tel" id="edit-phone" class="form-control" placeholder="+91 98765 43210" style="width: 100%; padding: 0.8rem; border: 2px solid #e5e7eb; border-radius: 12px;">
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="edit-phone" class="form-control" placeholder="+91 98765 43210">
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="font-weight: 600;">Skills (comma separated)</label>
-                        <input type="text" id="edit-skills" class="form-control" placeholder="JavaScript, React, Node.js" style="width: 100%; padding: 0.8rem; border: 2px solid #e5e7eb; border-radius: 12px;">
+                    <div class="form-group">
+                        <label>Skills (comma separated)</label>
+                        <input type="text" id="edit-skills" class="form-control" placeholder="JavaScript, React, Node.js">
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="font-weight: 600;">Experience (years)</label>
-                        <input type="number" id="edit-experience" class="form-control" step="0.5" placeholder="3" style="width: 100%; padding: 0.8rem; border: 2px solid #e5e7eb; border-radius: 12px;">
+                    <div class="form-group">
+                        <label>Experience (years)</label>
+                        <input type="number" id="edit-experience" class="form-control" step="0.5" placeholder="3">
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="font-weight: 600;">Education</label>
-                        <input type="text" id="edit-education" class="form-control" placeholder="B.Tech CSE, IIT Delhi" style="width: 100%; padding: 0.8rem; border: 2px solid #e5e7eb; border-radius: 12px;">
+                    <div class="form-group">
+                        <label>Education</label>
+                        <input type="text" id="edit-education" class="form-control" placeholder="B.Tech CSE, IIT Delhi">
                     </div>
-                    <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                        <button type="submit" class="btn-primary" style="padding: 0.8rem 1.5rem;">
-                            <i class="fas fa-save"></i> Save Changes
-                        </button>
-                        <button type="button" id="cancel-edit-btn" class="btn-outline" style="padding: 0.8rem 1.5rem; background: #e5e7eb; border: none; border-radius: 12px;">
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
+                    <div class="form-actions">
+                        <button type="submit" id="save-profile-btn" class="btn-primary">💾 Save Changes</button>
+                        <button type="button" id="cancel-edit-btn" class="btn-outline">❌ Cancel</button>
                     </div>
                 </form>
             </div>
@@ -698,24 +694,24 @@
         <div class="profile-stats-card glass-effect">
             <h3>Performance Stats</h3>
             <div class="stats-bars">
-                <div class="stat-bar-item" style="margin-bottom: 1rem;">
+                <div class="stat-bar-item">
                     <span class="bar-label">Average Score</span>
-                    <div class="bar-container" style="background: #e5e7eb; border-radius: 10px; height: 10px; margin: 0.5rem 0;">
-                        <div class="bar-fill" id="profile-avg-bar" style="width: 0%; background: linear-gradient(90deg, #14b8a6, #8b5cf6); height: 100%; border-radius: 10px;"></div>
+                    <div class="bar-container">
+                        <div class="bar-fill" id="profile-avg-bar" style="width: 0%"></div>
                     </div>
                     <span class="bar-value" id="profile-avg">0%</span>
                 </div>
-                <div class="stat-bar-item" style="margin-bottom: 1rem;">
+                <div class="stat-bar-item">
                     <span class="bar-label">Confidence</span>
-                    <div class="bar-container" style="background: #e5e7eb; border-radius: 10px; height: 10px; margin: 0.5rem 0;">
-                        <div class="bar-fill" id="profile-confidence-bar" style="width: 0%; background: linear-gradient(90deg, #14b8a6, #8b5cf6); height: 100%; border-radius: 10px;"></div>
+                    <div class="bar-container">
+                        <div class="bar-fill" id="profile-confidence-bar" style="width: 0%"></div>
                     </div>
                     <span class="bar-value" id="profile-confidence">0%</span>
                 </div>
-                <div class="stat-bar-item" style="margin-bottom: 1rem;">
+                <div class="stat-bar-item">
                     <span class="bar-label">Technical</span>
-                    <div class="bar-container" style="background: #e5e7eb; border-radius: 10px; height: 10px; margin: 0.5rem 0;">
-                        <div class="bar-fill" id="profile-technical-bar" style="width: 0%; background: linear-gradient(90deg, #14b8a6, #8b5cf6); height: 100%; border-radius: 10px;"></div>
+                    <div class="bar-container">
+                        <div class="bar-fill" id="profile-technical-bar" style="width: 0%"></div>
                     </div>
                     <span class="bar-value" id="profile-technical">0%</span>
                 </div>
