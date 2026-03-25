@@ -100,12 +100,12 @@ async init() {
     this.setupProfileEdit();   // ← ADD THIS
     this.setupPhotoUpload();   // ← ADD THIS
     }
-    updateProfilePageData() {
+  updateProfilePageData() {
     if (!this.currentUser) return;
     
     const profileName = document.getElementById('profile-name');
     const profileEmail = document.getElementById('profile-email');
-    const profilePhone = document.getElementById('profile-phone');
+    const profilePhone = document.getElementById('profile-phone');  // ← YEH LINE HONI CHAHIYE
     const profileSkills = document.getElementById('profile-skills');
     const profileExperience = document.getElementById('profile-experience');
     const profileEducation = document.getElementById('profile-education');
@@ -113,12 +113,14 @@ async init() {
     
     if (profileName) profileName.textContent = this.currentUser.name || 'Not set';
     if (profileEmail) profileEmail.textContent = this.currentUser.email || 'Not set';
-    if (profilePhone) profilePhone.textContent = this.currentUser.phone || 'Not provided';
+    if (profilePhone) profilePhone.textContent = this.currentUser.phone || 'Not provided';  // ← YEH LINE
     if (profileSkills) profileSkills.textContent = this.currentUser.skills || 'Not provided';
     if (profileExperience) profileExperience.textContent = this.currentUser.experience ? `${this.currentUser.experience} years` : 'Not provided';
     if (profileEducation) profileEducation.textContent = this.currentUser.education || 'Not provided';
     if (profileJoined) profileJoined.textContent = this.currentUser.joined || new Date().toLocaleDateString();
     
+    // ... rest of code
+
     // Update stats bars
     const avgScore = this.currentUser.stats?.averageScore || 0;
     const confidence = this.currentUser.stats?.confidenceScore || 0;
