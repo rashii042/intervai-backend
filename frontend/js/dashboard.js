@@ -6,16 +6,15 @@ class Dashboard {
     this.profilePhoto = localStorage.getItem('profilePhoto') || null;  // ← YEH LINE ADD
     this.init();
     }
-
-  async init() {
+async init() {
     await this.loadUserData();
     await this.loadInterviewData();
     this.setupEventListeners();
     this.loadCharts();
     this.loadRecentInterviews();
     this.initSettings();
-    this.setupProfileEdit();   // ← ADD THIS LINE
-    this.setupPhotoUpload();   // ← ADD THIS LINE
+    this.setupProfileEdit();   // ← ADD THIS
+    this.setupPhotoUpload();   // ← ADD THIS
     
     const hash = window.location.hash.substring(1);
     if (hash) {
@@ -1192,40 +1191,39 @@ class Dashboard {
         this.loadSettings();
         this.showToast('Settings reset to default', 'info');
     }    // ========== PROFILE PHOTO FUNCTIONS ==========
-    setupPhotoUpload() {
-        const uploadBtn = document.getElementById('upload-photo-btn');
-        const removeBtn = document.getElementById('remove-photo-btn');
-        const photoInput = document.getElementById('profile-photo-input');
-        
-        if (uploadBtn && photoInput) {
-            uploadBtn.onclick = () => photoInput.click();
-            photoInput.onchange = (e) => {
-                const file = e.target.files[0];
-                if (file) this.uploadPhoto(file);
-            };
-        }
-        
-        if (removeBtn) {
-            removeBtn.onclick = () => this.removePhoto();
-        }
-    }
-
-    uploadPhoto(file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            localStorage.setItem('profilePhoto', e.target.result);
-            this.updateAvatar();
-            this.showToast('Photo updated!', 'success');
+   setupPhotoUpload() {
+    const uploadBtn = document.getElementById('upload-photo-btn');
+    const removeBtn = document.getElementById('remove-photo-btn');
+    const photoInput = document.getElementById('profile-photo-input');
+    
+    if (uploadBtn && photoInput) {
+        uploadBtn.onclick = () => photoInput.click();
+        photoInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) this.uploadPhoto(file);
         };
-        reader.readAsDataURL(file);
     }
+    
+    if (removeBtn) {
+        removeBtn.onclick = () => this.removePhoto();
+    }
+}
 
-    removePhoto() {
-        localStorage.removeItem('profilePhoto');
+uploadPhoto(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        localStorage.setItem('profilePhoto', e.target.result);
         this.updateAvatar();
-        this.showToast('Photo removed', 'info');
-    }
+        this.showToast('Photo updated!', 'success');
+    };
+    reader.readAsDataURL(file);
+}
 
+removePhoto() {
+    localStorage.removeItem('profilePhoto');
+    this.updateAvatar();
+    this.showToast('Photo removed', 'info');
+}
     updateAvatar() {
         const photo = localStorage.getItem('profilePhoto');
         const avatar = document.querySelector('.user-avatar');
@@ -1329,6 +1327,7 @@ updateRecentInterviewsTable() {
     `).join('');
 }
 // ========== PROFILE EDIT FUNCTIONS ==========
+// ========== PROFILE EDIT FUNCTIONS ==========
 
 setupProfileEdit() {
     const editBtn = document.getElementById('edit-profile-btn');
@@ -1337,28 +1336,23 @@ setupProfileEdit() {
     const editForm = document.getElementById('profile-edit-form');
     const profileView = document.getElementById('profile-view');
     
-    if (!editBtn) {
-        console.log('Edit button not found');
-        return;
-    }
+    if (!editBtn) return;
     
     editBtn.addEventListener('click', () => {
-        // Populate edit form with current user data
-        const editName = document.getElementById('edit-name');
-        const editEmail = document.getElementById('edit-email');
-        const editPhone = document.getElementById('edit-phone');
-        const editSkills = document.getElementById('edit-skills');
-        const editExperience = document.getElementById('edit-experience');
-        const editEducation = document.getElementById('edit-education');
+        const editIds = ['edit-name', 'edit-email', 'edit-phone', 'edit-skills', 'edit-experience', 'edit-education'];
+        const values = [
+            this.currentUser?.name || '',
+            this.currentUser?.email || '',
+            this.currentUser?.phone || '',
+            this.currentUser?.skills || '',
+            this.currentUser?.experience || '',
+            this.currentUser?.education || ''
+        ];
         
-        if (this.currentUser) {
-            if (editName) editName.value = this.currentUser.name || '';
-            if (editEmail) editEmail.value = this.currentUser.email || '';
-            if (editPhone) editPhone.value = this.currentUser.phone || '';
-            if (editSkills) editSkills.value = this.currentUser.skills || '';
-            if (editExperience) editExperience.value = this.currentUser.experience || '';
-            if (editEducation) editEducation.value = this.currentUser.education || '';
-        }
+        editIds.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (el) el.value = values[i];
+        });
         
         if (profileView) profileView.style.display = 'none';
         if (editForm) editForm.style.display = 'block';
@@ -1381,6 +1375,9 @@ setupProfileEdit() {
                 return;
             }
             
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveBtn.disabled = true;
+            
             try {
                 const token = localStorage.getItem('token');
                 if (token) {
@@ -1393,8 +1390,11 @@ setupProfileEdit() {
                         body: JSON.stringify(updatedData)
                     });
                     const data = await response.json();
-                    if (data.success && this.currentUser) {
-                        Object.assign(this.currentUser, data.user);
+                    if (data.success && data.user) {
+                        this.currentUser = data.user;
+                        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                    } else if (this.currentUser) {
+                        Object.assign(this.currentUser, updatedData);
                         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
                     }
                 } else if (this.currentUser) {
@@ -1411,9 +1411,11 @@ setupProfileEdit() {
                 if (editBtn) editBtn.style.display = 'inline-flex';
                 
                 this.showProfileMessage('Profile updated!', 'success');
-                
             } catch (error) {
                 this.showProfileMessage('Update failed', 'error');
+            } finally {
+                saveBtn.innerHTML = '💾 Save Changes';
+                saveBtn.disabled = false;
             }
         });
     }
@@ -1437,6 +1439,7 @@ showProfileMessage(msg, type) {
             msgBox.style.display = 'none';
         }, 3000);
     }
+
 }
 
 updateSidebarUserInfo() {
@@ -1446,9 +1449,8 @@ updateSidebarUserInfo() {
     
     if (sidebarName && this.currentUser) sidebarName.textContent = this.currentUser.name;
     if (sidebarEmail && this.currentUser) sidebarEmail.textContent = this.currentUser.email;
-    if (greetingName && this.currentUser) greetingName.textContent = this.currentUser.name?.split(' ')[0];
+    if (greetingName && this.currentUser) greetingName.textContent = this.currentUser.name?.split(' ')[0] || 'User';
 }
-
 updateAvatar() {
     const photo = localStorage.getItem('profilePhoto');
     const avatar = document.querySelector('.user-avatar');
@@ -1475,6 +1477,7 @@ updateAvatar() {
             el.style.color = 'white';
         }
     });
+
 }
 }
 
