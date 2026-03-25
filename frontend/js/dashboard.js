@@ -13,13 +13,15 @@ async init() {
     this.loadCharts();
     this.loadRecentInterviews();
     this.initSettings();
-    this.setupProfileEdit();   // ← ADD THIS
-    this.setupPhotoUpload();   // ← ADD THIS
+    this.setupProfileEdit();
+    this.setupPhotoUpload();
+    this.setupMobileMenu();  // ← ADD THIS LINE
     
     const hash = window.location.hash.substring(1);
     if (hash) {
         this.navigateTo(hash);
     }
+
 }
     async loadUserData() {
         try {
@@ -1624,6 +1626,37 @@ updateAvatar() {
         }
     });
 
+}
+// Mobile menu functionality
+setupMobileMenu() {
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+    
+    if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+        });
+    }
+    
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+    });
+    
+    // Close sidebar when clicking on a nav link
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        });
+    });
 }
 }
 

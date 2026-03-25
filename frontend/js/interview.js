@@ -800,6 +800,58 @@ async loadQuestions() {
             console.error('End interview error:', e);
             this.showToast('Error ending interview', 'error');
         }
+        // Interview complete hone par
+async function saveCompletedInterview(interviewData) {
+    const token = localStorage.getItem('token');
+    
+    const interviewToSave = {
+        id: Date.now(),
+        exam: interviewData.exam || 'General',
+        subject: interviewData.subject || 'Technical',
+        difficulty: interviewData.difficulty || 'Intermediate',
+        score: interviewData.score || 0,
+        confidence: interviewData.confidence || 0,
+        status: 'completed',
+        date: new Date().toISOString(),
+        questions: interviewData.questions || []
+    };
+    
+    // Save to localStorage first (always)
+    const saved = localStorage.getItem('userInterviews');
+    let interviews = saved ? JSON.parse(saved) : [];
+    interviews.unshift(interviewToSave);
+    localStorage.setItem('userInterviews', JSON.stringify(interviews));
+    console.log('✅ Interview saved to localStorage');
+    
+    // Try backend if token exists
+    if (token) {
+        try {
+            const response = await fetch('https://intervai-backend.onrender.com/api/interviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(interviewToSave)
+            });
+            
+            if (response.ok) {
+                console.log('✅ Interview also saved to backend');
+            }
+        } catch (error) {
+            console.log('⚠️ Backend save failed, but saved locally');
+        }
+    }
+    // Jab interview complete ho jaye
+saveCompletedInterview({
+    exam: 'TCS NQT',
+    subject: 'Technical',
+    difficulty: 'Intermediate',
+    score: 85,
+    confidence: 82,
+    questions: questionList
+});
+}
     }
 
     generateReport() {
