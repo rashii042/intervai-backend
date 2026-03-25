@@ -390,8 +390,8 @@ async loadQuestions() {
     
     if (apiCount > 0) {
         try {
-            const response = await fetch('http://localhost:5000/api/ai/generate-questions', {
-                method: 'POST',
+const response = await fetch(`https://intervai-backend.onrender.com/api/ai/generate-questions`, {           
+         method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     subject: subject,
