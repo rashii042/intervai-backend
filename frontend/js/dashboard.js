@@ -1359,65 +1359,94 @@ setupProfileEdit() {
         editBtn.style.display = 'none';
     });
     
-    if (saveBtn) {
-        saveBtn.addEventListener('click', async () => {
-            const updatedData = {
-                name: document.getElementById('edit-name')?.value || '',
-                email: document.getElementById('edit-email')?.value || '',
-                phone: document.getElementById('edit-phone')?.value || '',
-                skills: document.getElementById('edit-skills')?.value || '',
-                experience: document.getElementById('edit-experience')?.value || '',
-                education: document.getElementById('edit-education')?.value || ''
-            };
+  if (saveBtn) {
+    saveBtn.addEventListener('click', async () => {
+        const updatedData = {
+            name: document.getElementById('edit-name')?.value || '',
+            email: document.getElementById('edit-email')?.value || '',
+            phone: document.getElementById('edit-phone')?.value || '',
+            skills: document.getElementById('edit-skills')?.value || '',
+            experience: document.getElementById('edit-experience')?.value || '',
+            education: document.getElementById('edit-education')?.value || ''
+        };
+        
+        console.log('Saving data:', updatedData);
+        
+        if (!updatedData.name || !updatedData.email) {
+            this.showProfileMessage('Name and email are required', 'error');
+            return;
+        }
+        
+        // Show loading
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+        
+        try {
+            const token = localStorage.getItem('token');
+            console.log('Token exists:', !!token);
             
-            if (!updatedData.name || !updatedData.email) {
-                this.showProfileMessage('Name and email are required', 'error');
-                return;
-            }
-            
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            saveBtn.disabled = true;
-            
-            try {
-                const token = localStorage.getItem('token');
-                if (token) {
-                    const response = await fetch('https://intervai-backend.onrender.com/api/users/profile', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify(updatedData)
-                    });
-                    const data = await response.json();
-                    if (data.success && data.user) {
-                        this.currentUser = data.user;
-                        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-                    } else if (this.currentUser) {
+            // Try backend first if token exists
+            if (token) {
+                const response = await fetch('https://intervai-backend.onrender.com/api/users/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+                
+                const data = await response.json();
+                console.log('Backend response:', data);
+                
+                if (response.ok && data.success && data.user) {
+                    this.currentUser = data.user;
+                    localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                    this.showProfileMessage('Profile updated successfully!', 'success');
+                } else {
+                    // Backend failed, use localStorage fallback
+                    if (this.currentUser) {
                         Object.assign(this.currentUser, updatedData);
                         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
                     }
-                } else if (this.currentUser) {
+                    this.showProfileMessage('Profile updated (local). Backend sync failed.', 'warning');
+                }
+            } else {
+                // No token, use localStorage only
+                if (this.currentUser) {
                     Object.assign(this.currentUser, updatedData);
                     localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
                 }
-                
-                this.updateProfilePageData();
-                this.updateSidebarUserInfo();
-                this.updateAvatar();
-                
-                if (profileView) profileView.style.display = 'block';
-                if (editForm) editForm.style.display = 'none';
-                if (editBtn) editBtn.style.display = 'inline-flex';
-                
                 this.showProfileMessage('Profile updated!', 'success');
-            } catch (error) {
-                this.showProfileMessage('Update failed', 'error');
-            } finally {
-                saveBtn.innerHTML = '💾 Save Changes';
-                saveBtn.disabled = false;
             }
-        });
+        } catch (error) {
+            console.error('Network error:', error);
+            // Network error - fallback to localStorage
+            if (this.currentUser) {
+                Object.assign(this.currentUser, updatedData);
+                localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+            }
+            this.showProfileMessage('Profile updated locally! Network error.', 'warning');
+        } finally {
+            saveBtn.innerHTML = '💾 Save Changes';
+            saveBtn.disabled = false;
+            
+            // Update UI
+            this.updateProfilePageData();
+            this.updateSidebarUserInfo();
+            this.updateAvatar();
+            
+            // Hide edit form
+            const profileView = document.getElementById('profile-view');
+            const editForm = document.getElementById('profile-edit-form');
+            const editBtn = document.getElementById('edit-profile-btn');
+            
+            if (profileView) profileView.style.display = 'block';
+            if (editForm) editForm.style.display = 'none';
+            if (editBtn) editBtn.style.display = 'inline-flex';
+        }
+    });
+
     }
     
     if (cancelBtn) {
