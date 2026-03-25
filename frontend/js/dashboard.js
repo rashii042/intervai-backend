@@ -156,111 +156,213 @@ updateProfilePageData() {
     console.log('✅ Profile page updated - Phone:', this.currentUser.phone);
 }
 
-    async loadInterviewData() {
-        try {
-            try {
-                const response = await API.getRecentInterviews();
-                if (response && response.interviews && response.interviews.length > 0) {
-                    this.interviews = response.interviews;
-                    console.log('✅ Interviews loaded from API:', this.interviews.length);
-                } else {
-                    this.loadDemoInterviews();
-                }
-            } catch (apiError) {
-                console.log('⚠️ API error, using demo data');
-                this.loadDemoInterviews();
+   async loadInterviewData() {
+    try {
+        const token = localStorage.getItem('token');
+        console.log('🔑 Token exists:', !!token);
+        
+        if (!token) {
+            console.log('⚠️ No token found, using demo data');
+            this.loadDemoInterviews();
+            this.updateDashboardStats();
+            this.loadRecentInterviews();
+            this.loadCharts();
+            return;
+        }
+
+        // Try to fetch real interviews from backend
+        console.log('📡 Fetching interviews from backend...');
+        const response = await fetch('https://intervai-backend.onrender.com/api/interviews', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
-        } catch (error) {
-            console.error('Error loading interviews:', error);
+        });
+
+        console.log('📡 Response status:', response.status);
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('📡 Backend interviews response:', data);
+            
+            if (data.success && data.interviews && data.interviews.length > 0) {
+                // Real interviews found
+                this.interviews = data.interviews;
+                console.log('✅ Real interviews loaded from backend:', this.interviews.length);
+                
+                // Save to localStorage as backup
+                localStorage.setItem('userInterviews', JSON.stringify(this.interviews));
+                
+                // Update user stats based on real interviews
+                this.updateUserStatsFromInterviews();
+                this.updateDashboardStats();
+                this.loadRecentInterviews();
+                this.loadCharts();
+                return;
+            } else if (data.interviews && data.interviews.length === 0) {
+                console.log('📭 No interviews found in backend, checking localStorage...');
+            }
+        } else {
+            console.log('⚠️ Backend response not OK:', response.status);
+        }
+        
+        // If no real interviews, check localStorage for saved interviews
+        const savedInterviews = localStorage.getItem('userInterviews');
+        if (savedInterviews) {
+            const parsed = JSON.parse(savedInterviews);
+            if (parsed && parsed.length > 0) {
+                this.interviews = parsed;
+                console.log('📦 Interviews loaded from localStorage:', this.interviews.length);
+                this.updateUserStatsFromInterviews();
+                this.updateDashboardStats();
+                this.loadRecentInterviews();
+                this.loadCharts();
+                return;
+            }
+        }
+        
+        // Fallback to demo data
+        console.log('⚠️ No real interviews found, using demo data');
+        this.loadDemoInterviews();
+        
+    } catch (error) {
+        console.error('❌ Error loading interviews:', error);
+        // Try localStorage fallback
+        const savedInterviews = localStorage.getItem('userInterviews');
+        if (savedInterviews) {
+            this.interviews = JSON.parse(savedInterviews);
+            console.log('📦 Fallback: interviews from localStorage:', this.interviews.length);
+            this.updateUserStatsFromInterviews();
+        } else {
             this.loadDemoInterviews();
         }
+        this.updateDashboardStats();
+        this.loadRecentInterviews();
+        this.loadCharts();
     }
+}
 
-    loadDemoInterviews() {
-        this.interviews = [
-            {
-                id: 1,
-                exam: 'TCS NQT',
-                subject: 'Technical Interview',
-                difficulty: 'Intermediate',
-                score: 85,
-                confidence: 82,
-                status: 'completed',
-                date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                questions: [
-                    { text: "Explain OOP concepts", score: 88, feedback: "Good understanding" },
-                    { text: "What is polymorphism?", score: 82, feedback: "Could add examples" }
-                ]
-            },
-            {
-                id: 2,
-                exam: 'Google',
-                subject: 'System Design',
-                difficulty: 'Advanced',
-                score: 72,
-                confidence: 68,
-                status: 'completed',
-                date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-            },
-            {
-                id: 3,
-                exam: 'Microsoft',
-                subject: 'Coding Round',
-                difficulty: 'Intermediate',
-                score: 91,
-                confidence: 88,
-                status: 'completed',
-                date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-            },
-            {
-                id: 4,
-                exam: 'Amazon',
-                subject: 'Behavioral Round',
-                difficulty: 'Intermediate',
-                score: 79,
-                confidence: 74,
-                status: 'completed',
-                date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString()
-            },
-            {
-                id: 5,
-                exam: 'Infosys',
-                subject: 'HR Interview',
-                difficulty: 'Beginner',
-                score: 88,
-                confidence: 85,
-                status: 'completed',
-                date: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString()
-            }
-        ];
-        
-        if (this.currentUser && this.interviews.length > 0) {
-            const totalScore = this.interviews.reduce((sum, i) => sum + (i.score || 0), 0);
-            const avgScore = Math.round(totalScore / this.interviews.length);
-            const avgConfidence = Math.round(this.interviews.reduce((sum, i) => sum + (i.confidence || 0), 0) / this.interviews.length);
-            
-            this.currentUser.stats = {
-                totalInterviews: this.interviews.length,
-                averageScore: avgScore,
-                confidenceScore: avgConfidence,
-                technicalScore: 74,
-                communicationScore: 78
-            };
-            
-            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-            
-            // Update stats in UI
-            const totalInterviews = document.getElementById('total-interviews');
-            const avgScoreEl = document.getElementById('average-score');
-            const confScoreEl = document.getElementById('confidence-score');
-            
-            if (totalInterviews) totalInterviews.textContent = this.interviews.length;
-            if (avgScoreEl) avgScoreEl.textContent = avgScore + '%';
-            if (confScoreEl) confScoreEl.textContent = avgConfidence + '%';
-        }
-        
-        console.log('📊 Demo interviews loaded:', this.interviews.length);
+// Update user stats from interviews
+updateUserStatsFromInterviews() {
+    if (!this.interviews || this.interviews.length === 0) {
+        console.log('📊 No interviews to calculate stats');
+        return;
     }
+    
+    const totalInterviews = this.interviews.length;
+    const totalScore = this.interviews.reduce((sum, i) => sum + (i.score || 0), 0);
+    const totalConfidence = this.interviews.reduce((sum, i) => sum + (i.confidence || 0), 0);
+    
+    const avgScore = Math.round(totalScore / totalInterviews);
+    const avgConfidence = Math.round(totalConfidence / totalInterviews);
+    
+    console.log('📊 Calculated stats:', { totalInterviews, avgScore, avgConfidence });
+    
+    // Update currentUser stats
+    if (this.currentUser) {
+        this.currentUser.stats = {
+            totalInterviews: totalInterviews,
+            averageScore: avgScore,
+            confidenceScore: avgConfidence,
+            technicalScore: this.currentUser.stats?.technicalScore || 74,
+            communicationScore: this.currentUser.stats?.communicationScore || 78
+        };
+        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+    }
+    
+    // Update UI stats
+    const totalInterviewsEl = document.getElementById('total-interviews');
+    const avgScoreEl = document.getElementById('average-score');
+    const confScoreEl = document.getElementById('confidence-score');
+    const techScoreEl = document.getElementById('technical-score');
+    
+    if (totalInterviewsEl) totalInterviewsEl.textContent = totalInterviews;
+    if (avgScoreEl) avgScoreEl.textContent = avgScore + '%';
+    if (confScoreEl) confScoreEl.textContent = avgConfidence + '%';
+    if (techScoreEl) techScoreEl.textContent = (this.currentUser?.stats?.technicalScore || 74) + '%';
+    
+    console.log('📊 Dashboard stats updated');
+}
+
+// Update dashboard stats
+updateDashboardStats() {
+    if (!this.interviews || this.interviews.length === 0) {
+        const totalEl = document.getElementById('total-interviews');
+        if (totalEl) totalEl.textContent = '0';
+        return;
+    }
+    
+    const total = this.interviews.length;
+    const avgScore = Math.round(this.interviews.reduce((s, i) => s + (i.score || 0), 0) / total);
+    const avgConfidence = Math.round(this.interviews.reduce((s, i) => s + (i.confidence || 0), 0) / total);
+    
+    const totalEl = document.getElementById('total-interviews');
+    const avgEl = document.getElementById('average-score');
+    const confEl = document.getElementById('confidence-score');
+    
+    if (totalEl) totalEl.textContent = total;
+    if (avgEl) avgEl.textContent = avgScore + '%';
+    if (confEl) confEl.textContent = avgConfidence + '%';
+}
+
+// Updated loadDemoInterviews
+loadDemoInterviews() {
+    this.interviews = [
+        {
+            id: 1,
+            exam: 'TCS NQT',
+            subject: 'Technical Interview',
+            difficulty: 'Intermediate',
+            score: 85,
+            confidence: 82,
+            status: 'completed',
+            date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+            id: 2,
+            exam: 'Google',
+            subject: 'System Design',
+            difficulty: 'Advanced',
+            score: 72,
+            confidence: 68,
+            status: 'completed',
+            date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+            id: 3,
+            exam: 'Microsoft',
+            subject: 'Coding Round',
+            difficulty: 'Intermediate',
+            score: 91,
+            confidence: 88,
+            status: 'completed',
+            date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+            id: 4,
+            exam: 'Amazon',
+            subject: 'Behavioral Round',
+            difficulty: 'Intermediate',
+            score: 79,
+            confidence: 74,
+            status: 'completed',
+            date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+            id: 5,
+            exam: 'Infosys',
+            subject: 'HR Interview',
+            difficulty: 'Beginner',
+            score: 88,
+            confidence: 85,
+            status: 'completed',
+            date: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString()
+        }
+    ];
+    
+    this.updateUserStatsFromInterviews();
+    console.log('📊 Demo interviews loaded:', this.interviews.length);
+}
 
     updateProfilePageData() {
         if (!this.currentUser) return;
