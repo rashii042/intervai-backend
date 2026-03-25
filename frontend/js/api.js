@@ -1,5 +1,5 @@
 class API {
-    static baseURL = 'https://intervai-backend.onrender.com/api';
+   static baseURL = 'https://intervai-backend.onrender.com/api';  // ✅ Live backend
 
     static async request(endpoint, options = {}) {
         const token = localStorage.getItem('token');
