@@ -4,6 +4,8 @@ class Dashboard {
     this.uploadedResumeId = null;
     this.interviews = [];
     this.profilePhoto = localStorage.getItem('profilePhoto') || null;  // ← YEH LINE ADD
+    this.performanceChart = null;  // ← ADD THIS
+    this.skillsChart = null;
     this.init();
     }
 async init() {
@@ -1018,57 +1020,89 @@ loadDemoInterviews() {
     }
 
     loadCharts() {
-        const performanceCtx = document.getElementById('performanceChart')?.getContext('2d');
-        if (performanceCtx) {
-            const scores = this.interviews.map(i => i.score || 0);
-            new Chart(performanceCtx, {
-                type: 'line',
-                data: {
-                    labels: scores.map((_, i) => `#${i + 1}`),
-                    datasets: [{
-                        label: 'Interview Score',
-                        data: scores,
-                        borderColor: '#14b8a6',
-                        backgroundColor: 'rgba(20, 184, 166, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, max: 100 } }
-                }
-            });
-        }
-
-        const skillsCtx = document.getElementById('skillsChart')?.getContext('2d');
-        if (skillsCtx) {
-            new Chart(skillsCtx, {
-                type: 'radar',
-                data: {
-                    labels: ['Technical', 'Communication', 'Confidence', 'Problem Solving', 'Behavioral'],
-                    datasets: [{
-                        label: 'Your Score',
-                        data: [
-                            this.currentUser?.stats?.technicalScore || 74,
-                            this.currentUser?.stats?.communicationScore || 78,
-                            this.currentUser?.stats?.confidenceScore || 72,
-                            76,
-                            70
-                        ],
-                        backgroundColor: 'rgba(20, 184, 166, 0.2)',
-                        borderColor: '#14b8a6',
-                        pointBackgroundColor: '#14b8a6'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: { r: { beginAtZero: true, max: 100 } }
-                }
-            });
-        }
+    // Destroy existing charts if they exist
+    if (this.performanceChart) {
+        this.performanceChart.destroy();
     }
+    if (this.skillsChart) {
+        this.skillsChart.destroy();
+    }
+    
+    const performanceCtx = document.getElementById('performanceChart')?.getContext('2d');
+    if (performanceCtx && this.interviews && this.interviews.length > 0) {
+        const scores = this.interviews.map(i => i.score || 0);
+        this.performanceChart = new Chart(performanceCtx, {
+            type: 'line',
+            data: {
+                labels: scores.map((_, i) => `#${i + 1}`),
+                datasets: [{
+                    label: 'Interview Score',
+                    data: scores,
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 100 } }
+            }
+        });
+    } else if (performanceCtx) {
+        // Show empty chart or message
+        this.performanceChart = new Chart(performanceCtx, {
+            type: 'line',
+            data: {
+                labels: ['No Data'],
+                datasets: [{
+                    label: 'Interview Score',
+                    data: [0],
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+    }
+
+    const skillsCtx = document.getElementById('skillsChart')?.getContext('2d');
+    if (skillsCtx) {
+        const technical = this.currentUser?.stats?.technicalScore || 74;
+        const communication = this.currentUser?.stats?.communicationScore || 78;
+        const confidence = this.currentUser?.stats?.confidenceScore || 72;
+        
+        this.skillsChart = new Chart(skillsCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Technical', 'Communication', 'Confidence', 'Problem Solving', 'Behavioral'],
+                datasets: [{
+                    label: 'Your Score',
+                    data: [technical, communication, confidence, 76, 70],
+                    backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                    borderColor: '#14b8a6',
+                    pointBackgroundColor: '#14b8a6',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#14b8a6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { stepSize: 20 }
+                    }
+                }
+            }
+        });
+    }
+}
 
     async loadRecentInterviews() {
         try {
