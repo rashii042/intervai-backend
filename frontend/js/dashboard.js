@@ -1698,7 +1698,10 @@ setupMobileMenu() {
     const menuBtn = document.getElementById('mobileMenuBtn');
     const sidebar = document.querySelector('.sidebar');
     
-    if (!menuBtn || !sidebar) return;
+    if (!menuBtn || !sidebar) {
+        console.log('Menu button or sidebar not found');
+        return;
+    }
     
     // Create overlay if not exists
     let overlay = document.querySelector('.sidebar-overlay');
@@ -1729,16 +1732,17 @@ setupMobileMenu() {
         });
     });
     
-    // Close on window resize (if becomes desktop)
+    // Close on window resize
     window.addEventListener('resize', () => {
         if (window.innerWidth > 768) {
             sidebar.classList.remove('open');
             overlay.classList.remove('active');
         }
     });
+    
+    console.log('✅ Mobile menu setup complete');
 }
 }
-
 
 // Global functions
 window.viewReport = (interviewId) => window.location.href = `report.html?id=${interviewId}`;
