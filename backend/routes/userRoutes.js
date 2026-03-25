@@ -9,7 +9,6 @@ router.get('/me', auth, async (req, res) => {
         const user = await User.findById(req.user.id).select('-password');
         res.json({ success: true, user });
     } catch (error) {
-        console.error('Get profile error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -17,14 +16,13 @@ router.get('/me', auth, async (req, res) => {
 // Update user profile
 router.put('/profile', auth, async (req, res) => {
     try {
-        const { name, email, skills, experience, education, phone } = req.body;
+        const { name, email, phone, skills, experience, education } = req.body;
         
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Update fields
         if (name) user.name = name;
         if (email) user.email = email;
         if (phone) user.phone = phone;
@@ -33,30 +31,29 @@ router.put('/profile', auth, async (req, res) => {
         if (education) user.education = education;
 
         await user.save();
-
+        
         const updatedUser = await User.findById(req.user.id).select('-password');
-        res.json({ success: true, user: updatedUser, message: 'Profile updated successfully' });
+        res.json({ success: true, user: updatedUser });
     } catch (error) {
         console.error('Update profile error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
-// Get user stats for dashboard
+// Get user stats
 router.get('/stats', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-        // You can add interview stats here if you have Interview model
         res.json({
             success: true,
             stats: {
-                interviewsTaken: user.interviewsTaken || 0,
+                totalInterviews: user.totalInterviews || 0,
                 averageScore: user.averageScore || 0,
-                totalQuestions: user.totalQuestions || 0
+                confidenceScore: user.confidenceScore || 0,
+                technicalScore: user.technicalScore || 0
             }
         });
     } catch (error) {
-        console.error('Get stats error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });

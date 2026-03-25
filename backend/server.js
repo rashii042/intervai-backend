@@ -14,6 +14,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/api/users', userRoutes);
 
 // MongoDB connection
 if (!process.env.MONGODB_URI) {
