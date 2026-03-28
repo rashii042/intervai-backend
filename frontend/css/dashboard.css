@@ -3060,4 +3060,10 @@ input:checked + .slider:before {
     .form-actions button {
         width: 100%;
     }
+    
+#performanceChart {
+    max-height: 250px !important;
+    height: 250px !important;
+    width: 100% !important;
+}
 }

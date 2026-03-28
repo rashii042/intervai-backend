@@ -424,8 +424,7 @@
                 <div class="charts-grid">
                     <div class="chart-card glass-effect">
                         <h3>Performance Trend</h3>
-                        <canvas id="performanceChart"></canvas>
-                    </div>
+<canvas id="performanceChart" style="height: 250px; width: 100%;"></canvas>                    </div>
                     
                     <div class="chart-card glass-effect">
                         <h3>Skills Breakdown</h3>
@@ -674,18 +673,8 @@
                         <label>Phone</label>
                         <input type="tel" id="edit-phone" class="form-control" placeholder="+91 98765 43210">
                     </div>
-                    <div class="form-group">
-                        <label>Skills (comma separated)</label>
-                        <input type="text" id="edit-skills" class="form-control" placeholder="JavaScript, React, Node.js">
-                    </div>
-                    <div class="form-group">
-                        <label>Experience (years)</label>
-                        <input type="number" id="edit-experience" class="form-control" step="0.5" placeholder="3">
-                    </div>
-                    <div class="form-group">
-                        <label>Education</label>
-                        <input type="text" id="edit-education" class="form-control" placeholder="B.Tech CSE, IIT Delhi">
-                    </div>
+                    
+                   
                     <div class="form-actions">
                         <button type="submit" id="save-profile-btn" class="btn-primary">💾 Save Changes</button>
                         <button type="button" id="cancel-edit-btn" class="btn-outline">❌ Cancel</button>
